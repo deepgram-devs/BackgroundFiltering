@@ -11,4 +11,4 @@ Personal AI Voice Assistant that is connect to Llama3 and your google calendar. 
 
 <img width="311" alt="Screenshot 2025-02-24 at 11 50 46 AM" src="https://github.com/user-attachments/assets/cab2a2f6-cac5-4e6f-b08d-b36a3b6d3d0c" />
 
-<div style="position: relative; padding-bottom: 64.98194945848375%; height: 0;"><iframe src="https://www.loom.com/embed/464d0e14a5ea4eb3ba11f1ca82fe1553?sid=05cc8e18-6337-4fff-9080-ad8e90cb72d5" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe></div>
+[![Watch the video](https://cdn.loom.com/sessions/thumbnails/464d0e14a5ea4eb3ba11f1ca82fe1553-with-play.jpg)](https://www.loom.com/share/464d0e14a5ea4eb3ba11f1ca82fe1553?sid=05cc8e18-6337-4fff-9080-ad8e90cb72d5)
