@@ -1,6 +1,6 @@
 # AI-Voice-Assistant
  
-Personal AI Voice Assistant that is connect to Llama3 and your google calendar.
+Personal AI Voice Assistant that is connect to Llama3 and your google calendar. You can ask it to tell you your avaliabilies and what events you have. It can also be a notetaker for anything spoken such as classes, meetings, videos, etc. When you say "question" you can chat directly with Llama3 without typing and ask any question you type into ChatGPT or another LLM of choice.
 
 # Notes
 - To use this you will need to download a Vosk model and put it in your working directory: https://alphacephei.com/vosk/models
