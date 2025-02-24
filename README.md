@@ -9,7 +9,7 @@ Personal AI Voice Assistant that is connect to Llama3 and your google calendar. 
 - Run pip install -r requirements.txt
 - Finally run python assitant.py and you will have your own personal AI Voice Assistant!
 
-[Loom Demo](https://cdn.loom.com/sessions/thumbnails/464d0e14a5ea4eb3ba11f1ca82fe1553-with-play.jpg)](https://www.loom.com/share/464d0e14a5ea4eb3ba11f1ca82fe1553?sid=05cc8e18-6337-4fff-9080-ad8e90cb72d5)
+[!][Loom Demo](https://cdn.loom.com/sessions/thumbnails/464d0e14a5ea4eb3ba11f1ca82fe1553-with-play.jpg)](https://www.loom.com/share/464d0e14a5ea4eb3ba11f1ca82fe1553?sid=05cc8e18-6337-4fff-9080-ad8e90cb72d5)
 
 <img width="311" alt="Screenshot 2025-02-24 at 11 50 46 AM" src="https://github.com/user-attachments/assets/cab2a2f6-cac5-4e6f-b08d-b36a3b6d3d0c" />
 
