@@ -20,11 +20,20 @@ current_session = None
 # GUI callback for streaming summaries to main interface
 gui_callback = None
 
+# Assistant resume callback for when brainstorming ends
+assistant_resume_callback = None
+
 def set_gui_callback(callback_func):
     """Set a callback function to send messages to the GUI"""
     global gui_callback
     gui_callback = callback_func
     print("✅ GUI callback registered for brainstorming summaries")
+
+def set_assistant_resume_callback(callback_func):
+    """Set a callback function to resume the main assistant when brainstorming ends"""
+    global assistant_resume_callback
+    assistant_resume_callback = callback_func
+    print("✅ Assistant resume callback registered")
 
 def send_to_gui(message):
     """Thread-safe way to send messages to the GUI"""
@@ -193,8 +202,8 @@ class VoiceBrainstormSession:
                 ('quit brainstorm' in content_lower)) and len(content.split()) < 8:  # Short command
                 
                 print("🛑 User requested to end brainstorming session")
-                send_to_gui("🛑 Brainstorming session ended by user voice command.\n\n📝 Press 'Start Listening' to resume regular dictation.")
-                session.end_session()
+                send_to_gui("🛑 Brainstorming session ended by user voice command.\n\n▶️ Main assistant will resume automatically.")
+                session.end_session()  # This will call the resume callback
                 return
             
             # Check if user is requesting a summary
@@ -306,16 +315,25 @@ class VoiceBrainstormSession:
                 except:
                     pass  # Ignore cleanup errors
             
+            # Notify main assistant to resume
+            global assistant_resume_callback
+            if assistant_resume_callback:
+                try:
+                    assistant_resume_callback()
+                    print("✅ Main assistant resume callback executed")
+                except Exception as e:
+                    print(f"⚠️ Error calling resume callback: {e}")
+            
         except Exception as e:
             print(f"⚠️ Session end warning: {e}")
 
 def brainstorm(topic_or_question):
-    """Start a voice brainstorming session - stops current assistant completely"""
+    """Start a voice brainstorming session - pauses current assistant"""
     global current_session
     
     try:
         print(f"🧠 Starting voice brainstorming session...")
-        print("🛑 Stopping main assistant for brainstorming...")
+        print("⏸️ Pausing main assistant for brainstorming...")
         
         if topic_or_question:
             print(f"💡 Topic: {topic_or_question}")
@@ -355,9 +373,9 @@ def brainstorm(topic_or_question):
         time.sleep(1)
         
         if current_session and current_session.is_active:
-            return f"🎯 Voice brainstorming started! Topic: {topic_or_question if topic_or_question else 'Open brainstorming'}\n\n🎤 You can now speak to have a voice conversation about ideas!\n📝 Say 'summary' anytime for a recap\n🛑 Say 'end brainstorm' to end session\n🛑 Press 'Stop Listening' ro reset the dictation"
+            return f"🎯 Voice brainstorming started! Topic: {topic_or_question if topic_or_question else 'Open brainstorming'}\n\n🎤 You can now speak to have a voice conversation about ideas!\n📝 Say 'summary' anytime for a recap\n🛑 Say 'end brainstorm' to end session and resume main assistant"
         else:
-            return "Starting voice brainstorming session... Please wait a moment then start speaking.\n🛑 Press 'Stop Listening' when you want to end the session."
+            return "Starting voice brainstorming session... Please wait a moment then start speaking.\n🛑 Say 'end brainstorm' to end session and resume main assistant."
             
     except Exception as e:
         print(f"❌ Error starting brainstorm: {e}")
@@ -368,7 +386,7 @@ def end_brainstorm():
     global current_session
     
     if current_session and current_session.is_active:
-        current_session.end_session()
+        current_session.end_session()  # This will call the resume callback
         current_session = None
         return "Voice brainstorming session ended manually."
     else:
