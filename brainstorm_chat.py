@@ -3,6 +3,8 @@ import asyncio
 import threading
 import sys
 import os
+import ssl
+import certifi
 from deepgram import (
     DeepgramClient,
     DeepgramClientOptions,
@@ -33,7 +35,8 @@ def set_assistant_resume_callback(callback_func):
     """Set a callback function to resume the main assistant when brainstorming ends"""
     global assistant_resume_callback
     assistant_resume_callback = callback_func
-    print("✅ Assistant resume callback registered")
+    print(f"✅ Assistant resume callback registered: {callback_func}")
+    print(f"🔧 CALLBACK DEBUG: Callback function type: {type(callback_func)}")
 
 def send_to_gui(message):
     """Thread-safe way to send messages to the GUI"""
@@ -93,24 +96,46 @@ class VoiceBrainstormSession:
                 print("❌ Deepgram API key not found")
                 return False
                 
-            # Configure Deepgram client for voice agent
-            config = DeepgramClientOptions(
-                options={
-                    "keepalive": "true",
-                    "microphone_record": "true",
-                    "speaker_playback": "true",
-                    "diarize": "true",
-                }
-            )
+            # Create SSL context once for reuse
+            ssl_context = ssl.create_default_context(cafile=certifi.where())
             
-            self.deepgram = DeepgramClient(api_key, config)
-            self.connection = self.deepgram.agent.websocket.v("1")
-            
-            print("✅ Deepgram voice agent initialized for brainstorming")
-            return True
-            
+            # First attempt: Full configuration with audio settings
+            try:
+                config = DeepgramClientOptions(
+                    options={
+                        "keepalive": "true",
+                        "ssl_context": ssl_context,
+                        "microphone_record": "true",
+                        "speaker_playback": "true",
+                        "diarize": "true",
+                    }
+                )
+                
+                self.deepgram = DeepgramClient(api_key, config)
+                self.connection = self.deepgram.agent.websocket.v("1")
+                
+                print("✅ Deepgram voice agent initialized for brainstorming with SSL context")
+                return True
+                
+            except Exception as e:
+                print(f"❌ Error with full configuration: {e}")
+                # Try fallback without audio record settings if first attempt fails
+                print("🔄 Attempting fallback initialization...")
+                
+                config = DeepgramClientOptions(
+                    options={
+                        "keepalive": "true",
+                        "ssl_context": ssl_context,  # Reuse the same SSL context
+                        "diarize": "true",
+                    }
+                )
+                self.deepgram = DeepgramClient(api_key, config)
+                self.connection = self.deepgram.agent.websocket.v("1")
+                print("✅ Deepgram voice agent initialized (fallback mode)")
+                return True
+                
         except Exception as e:
-            print(f"❌ Error initializing voice agent: {e}")
+            print(f"❌ Complete initialization failed: {e}")
             return False
     
     def configure_brainstorm_agent(self, topic=None):
@@ -315,14 +340,53 @@ class VoiceBrainstormSession:
                 except:
                     pass  # Ignore cleanup errors
             
-            # Notify main assistant to resume
+            # Add buffer delay for audio device cleanup
+            import time
+            time.sleep(1.0)  # 1 second buffer for audio cleanup
+            
+            # Notify main assistant to resume with additional buffer
             global assistant_resume_callback
             if assistant_resume_callback:
+                print(f"🔧 CALLBACK DEBUG: Resume callback found: {assistant_resume_callback}")
+                print(f"🔧 CALLBACK DEBUG: Callback type: {type(assistant_resume_callback)}")
                 try:
-                    assistant_resume_callback()
-                    print("✅ Main assistant resume callback executed")
+                    # Add buffer before resuming main assistant using main thread scheduling
+                    def delayed_resume():
+                        import time
+                        time.sleep(2.0)  # 2 second buffer before resume
+                        
+                        # Schedule on main thread for thread safety
+                        def safe_resume():
+                            try:
+                                print(f"🔧 CALLBACK DEBUG: About to call resume callback")
+                                assistant_resume_callback()
+                                print("✅ Main assistant resume callback executed")
+                            except Exception as e:
+                                print(f"⚠️ Error in resume callback: {e}")
+                                import traceback
+                                print(f"🔧 CALLBACK DEBUG: Full traceback: {traceback.format_exc()}")
+                        
+                        # Use tkinter's thread-safe scheduling
+                        try:
+                            import tkinter as tk
+                            if hasattr(tk, '_default_root') and tk._default_root:
+                                print(f"🔧 CALLBACK DEBUG: Using tkinter.after scheduling")
+                                tk._default_root.after(0, safe_resume)
+                            else:
+                                print(f"🔧 CALLBACK DEBUG: No tkinter root, using direct call")
+                                safe_resume()  # Fallback
+                        except Exception as e:
+                            print(f"🔧 CALLBACK DEBUG: Tkinter scheduling failed: {e}, using direct call")
+                            safe_resume()  # Final fallback
+                    
+                    import threading
+                    resume_thread = threading.Thread(target=delayed_resume, daemon=True)
+                    resume_thread.start()
+                    print(f"🔧 CALLBACK DEBUG: Resume thread started")
                 except Exception as e:
                     print(f"⚠️ Error calling resume callback: {e}")
+            else:
+                print(f"🔧 CALLBACK DEBUG: No resume callback registered!")
             
         except Exception as e:
             print(f"⚠️ Session end warning: {e}")
@@ -335,12 +399,17 @@ def brainstorm(topic_or_question):
         print(f"🧠 Starting voice brainstorming session...")
         print("⏸️ Pausing main assistant for brainstorming...")
         
+        # Add buffer delay to ensure main assistant audio is fully paused
+        import time
+        time.sleep(0.5)  # 500ms buffer for audio device release
+        
         if topic_or_question:
             print(f"💡 Topic: {topic_or_question}")
         
         # End any existing session
         if current_session and current_session.is_active:
             current_session.end_session()
+            time.sleep(1.0)  # 1 second buffer for cleanup
         
         # Create new session
         current_session = VoiceBrainstormSession()
@@ -368,9 +437,8 @@ def brainstorm(topic_or_question):
         brainstorm_thread = threading.Thread(target=run_brainstorm, daemon=True)
         brainstorm_thread.start()
         
-        # Give it a moment to start
-        import time
-        time.sleep(1)
+        # Give it a moment to start with additional buffer
+        time.sleep(1.5)  # Increased buffer for initialization
         
         if current_session and current_session.is_active:
             return f"🎯 Voice brainstorming started! Topic: {topic_or_question if topic_or_question else 'Open brainstorming'}\n\n🎤 You can now speak to have a voice conversation about ideas!\n📝 Say 'summary' anytime for a recap\n🛑 Say 'end brainstorm' to end session and resume main assistant"

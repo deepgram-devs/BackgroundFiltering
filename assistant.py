@@ -6,7 +6,7 @@ import json
 import tkinter as tk
 from tkinter import ttk
 from openai_chat import gen
-from brainstorm_chat import brainstorm, end_brainstorm, is_brainstorming, get_brainstorm_summary, set_gui_callback
+from brainstorm_chat import brainstorm, end_brainstorm, is_brainstorming, get_brainstorm_summary, set_gui_callback, set_assistant_resume_callback
 from assistantTools import get_events, get_free_slots_today, get_free_slots_week, get_todays_events, format_time, get_weeks_events, set_user_timezone, format_event_time
 from deepgram import DeepgramClient, DeepgramClientOptions, LiveTranscriptionEvents, LiveOptions
 from google_oauth import is_authenticated, authenticate, revoke_access
@@ -17,9 +17,15 @@ from pathlib import Path
 import pytz
 from embedded_config import EmbeddedConfig
 from user_profile import UserProfile
+import ssl
+import certifi
+import time
 
 # Load environment variables from .env file
 load_dotenv()
+
+# Add this to your imports in assistant.py
+
 
 # Global variable to store the assistant instance
 current_assistant = None
@@ -82,6 +88,7 @@ class VoiceAssistant:
         self.dg_connection = None
         self.audio_stream = None
         self.is_running = False
+        self.is_paused = False  # Add pause flag for brainstorming sessions
         self.loop = None
         self.waiting_for_question = False
         
@@ -90,25 +97,27 @@ class VoiceAssistant:
         self.speaker_lock_enabled = True
         self.min_words_to_lock = 3  # Minimum words before locking speaker
         
-        # Initialize Deepgram client
+        # Initialize Deepgram client with SSL context
         try:
             print("🔧 Initializing Deepgram client...")
             api_key = EmbeddedConfig.get_deepgram_key()
             if not api_key:
                 print("❌ Warning: DEEPGRAM_API_KEY not found")
-                print("Please set your Deepgram API key in .env file for development")
                 return
             
             print(f"🔑 API Key found (length: {len(api_key)})") 
             
-            # Use DeepgramClientOptions like the working code
+            # Use SSL context for certificate verification
+            ssl_context = ssl.create_default_context(cafile=certifi.where())
+            
             config = DeepgramClientOptions(
                 options={
                     "keepalive": "true",
+                    "ssl_context": ssl_context
                 }
             )
             self.deepgram = DeepgramClient(api_key, config)
-            print("✅ Deepgram client initialized successfully with config")
+            print("✅ Deepgram client initialized successfully with SSL context")
         except Exception as e:
             print(f"❌ Error initializing Deepgram client: {e}")
         
@@ -178,6 +187,13 @@ class VoiceAssistant:
     def process_transcript(self, result):
         """Process the recognized text from Deepgram with speaker filtering"""
         try:
+            # Skip processing if assistant is paused (during brainstorming)
+            if self.is_paused:
+                print("⏸️ Assistant paused - skipping transcript processing")
+                return
+            
+            print("✅ Assistant active - processing transcript")
+            
             # Extract text from Deepgram result
             if result.is_final:
                 # Apply speaker filtering
@@ -217,6 +233,11 @@ class VoiceAssistant:
                         self.handle_upcoming_events()
                     elif "terminate" in filtered_transcript.lower():
                         self.stop_assistant()
+                    elif "test resume" in filtered_transcript.lower():
+                        # Test command to verify resume functionality
+                        self.text_display.insert(tk.END, f"🧪 Testing pause/resume: is_paused = {self.is_paused}\n")
+                        self.text_display.see(tk.END)
+                        print(f"🧪 Testing pause/resume: is_paused = {self.is_paused}")
                     elif "create event" in filtered_transcript.lower() or "schedule" in filtered_transcript.lower():
                         self.handle_create_event(filtered_transcript)
                     elif "find event" in filtered_transcript.lower() or "search event" in filtered_transcript.lower():
@@ -242,6 +263,8 @@ class VoiceAssistant:
             sentence = result.channel.alternatives[0].transcript
             if len(sentence) == 0:
                 return
+            print(f"🔧 AUDIO DEBUG: Received transcript in main assistant: '{sentence}'")
+            print(f"🔧 AUDIO DEBUG: is_paused = {self.is_paused}, is_final = {result.is_final}")
             self.process_transcript(result)
         except Exception as e:
             print(f"Error in on_message: {e}")
@@ -270,18 +293,19 @@ class VoiceAssistant:
         self.waiting_for_question = True
     
     def handle_brainstorm_session(self, filtered_transcript):
-        """Handle starting a brainstorming session - stops current assistant"""
-        self.text_display.insert(tk.END, "🧠 Starting brainstorming session - stopping assistant...\n")
+        """Handle starting a brainstorming session - pauses current assistant instead of stopping"""
+        self.text_display.insert(tk.END, "🧠 Starting brainstorming session - pausing assistant...\n")
         self.text_display.see(tk.END)
-        print("🧠 Starting brainstorming session - stopping assistant...")
+        print("🧠 Starting brainstorming session - pausing assistant...")
         
-        # Stop the current assistant completely
-        self.stop_assistant()
+        # Pause the current assistant's audio processing instead of stopping completely
+        self.is_paused = True  # Add a pause flag instead of stopping
+        print("⏸️ Main assistant paused for brainstorming session")
         
         # Extract topic from the command (remove the trigger phrase)
         topic = filtered_transcript.lower().replace("brainstorm", "").replace("about", "").strip()
         
-        # Start the voice brainstorming session (this will handle restart when done)
+        # Start the voice brainstorming session
         try:
             response = brainstorm(topic if topic else None)
             self.text_display.insert(tk.END, f"{response}\n")
@@ -292,6 +316,109 @@ class VoiceAssistant:
             self.text_display.insert(tk.END, f"{error_msg}\n")
             self.text_display.see(tk.END)
             print(error_msg)
+            # If brainstorming fails, resume the main assistant
+            self.is_paused = False
+            print("▶️ Main assistant resumed due to brainstorming error")
+    
+    def resume_assistant(self):
+        """Resume the main assistant after brainstorming session ends"""
+        print(f"🔧 RESUME DEBUG: Method called, current is_paused = {self.is_paused}")
+        self.is_paused = False
+        print(f"🔧 RESUME DEBUG: After setting, is_paused = {self.is_paused}")
+        print("▶️ Main assistant resumed from brainstorming session")
+        
+        # Check if audio stream is still healthy
+        self.check_and_restart_audio_if_needed()
+        
+        # Use tkinter's thread-safe method for GUI updates
+        def update_gui():
+            try:
+                self.text_display.insert(tk.END, "▶️ Main assistant resumed. You can continue with voice commands.\n")
+                self.text_display.see(tk.END)
+                print("✅ GUI updated - assistant resume message displayed")
+            except Exception as e:
+                print(f"⚠️ Error updating GUI in resume: {e}")
+        
+        # Schedule GUI update on main thread
+        try:
+            # Try to get the root window and schedule the update
+            import tkinter as tk
+            root = tk._default_root
+            if root:
+                root.after(0, update_gui)
+            else:
+                # Fallback to direct call if no root window
+                update_gui()
+        except Exception as e:
+            print(f"⚠️ Error scheduling GUI update: {e}")
+            # Final fallback
+            update_gui()
+    
+    def check_and_restart_audio_if_needed(self):
+        """Check if audio stream is healthy and restart if needed"""
+        try:
+            print("🔧 AUDIO CHECK: Verifying audio stream health...")
+            
+            # Check if audio stream is still active
+            if not self.audio_stream or not self.audio_stream.is_active():
+                print("⚠️ AUDIO CHECK: Audio stream is not active, attempting restart...")
+                self.restart_audio_stream()
+            elif not self.dg_connection:
+                print("⚠️ AUDIO CHECK: Deepgram connection lost, attempting restart...")
+                self.restart_audio_stream()
+            else:
+                print("✅ AUDIO CHECK: Audio stream appears healthy")
+                
+        except Exception as e:
+            print(f"⚠️ AUDIO CHECK: Error checking audio health: {e}")
+            print("🔄 AUDIO CHECK: Attempting restart due to error...")
+            self.restart_audio_stream()
+    
+    def restart_audio_stream(self):
+        """Restart the audio stream after brainstorming session"""
+        try:
+            print("🔄 AUDIO RESTART: Restarting audio stream...")
+            
+            # Stop current stream if it exists
+            if self.audio_stream:
+                try:
+                    self.audio_stream.stop_stream()
+                    self.audio_stream.close()
+                    print("🛑 AUDIO RESTART: Stopped old audio stream")
+                except:
+                    pass
+            
+            # Finish current Deepgram connection if it exists
+            if self.dg_connection:
+                try:
+                    self.dg_connection.finish()
+                    print("🛑 AUDIO RESTART: Finished old Deepgram connection")
+                except:
+                    pass
+            
+            # Small delay to let audio device settle
+            import time
+            time.sleep(1.0)
+            
+            # Restart the audio stream in a new thread
+            def restart_async():
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                try:
+                    loop.run_until_complete(self.start_audio_stream())
+                finally:
+                    loop.close()
+            
+            import threading
+            restart_thread = threading.Thread(target=restart_async, daemon=True)
+            restart_thread.start()
+            
+            print("✅ AUDIO RESTART: Audio stream restart initiated")
+            
+        except Exception as e:
+            print(f"❌ AUDIO RESTART: Error restarting audio stream: {e}")
+            import traceback
+            print(f"🔍 AUDIO RESTART: Full traceback: {traceback.format_exc()}")
     
     def handle_free_time_week(self):
         """Handle weekly free time query"""
@@ -1322,6 +1449,11 @@ def start_assistant():
     # Register GUI callback for brainstorming summaries
     set_gui_callback(display_brainstorm_message)
     
+    # Register resume callback for when brainstorming ends
+    set_assistant_resume_callback(current_assistant.resume_assistant)
+    print(f"🔧 CALLBACK DEBUG: Resume callback registered for assistant instance {id(current_assistant)}")
+    print(f"🔧 CALLBACK DEBUG: Initial is_paused state = {current_assistant.is_paused}")
+    
     # Update UI
     main_button.config(text="🛑 Stop Listening", command=stop_assistant_ui, bg="#da3633")
     update_voice_status("Initializing...", True)
@@ -1358,6 +1490,10 @@ def stop_assistant_ui():
     if current_assistant:
         current_assistant.stop_assistant()
         current_assistant = None
+    
+    # Clear callbacks to prevent memory leaks
+    set_gui_callback(None)
+    set_assistant_resume_callback(None)
     
     # Reset UI
     main_button.config(text="🎤 Start Listening", command=start_assistant, bg="#1f6feb")
