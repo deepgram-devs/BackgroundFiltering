@@ -1,45 +1,25 @@
-# AI Voice Assistant - Minimal Dependencies
+# Sierra Voice Filter - Revolutionary TV Noise Filtering
+# 5-Stage filtering system for speaker diarization in noisy environments
+
 # Core voice processing
 deepgram-sdk==4.1.0
 pyaudio==0.2.14
-websockets==12.0
 
-# AI and chat
-openai==1.51.0
-groq==0.9.0
-httpx==0.27.2
-
-# Google Calendar integration
-google-auth==2.38.0
-google-auth-oauthlib==1.2.0
-google-auth-httplib2==0.2.0
-google-api-python-client==2.161.0
-
-# Date/time handling
-pytz==2023.4
-python-dateutil==2.9.0.post0
-
-# Environment and configuration
+# Environment configuration
 python-dotenv==1.0.1
 
-# Document generation (optional - for transcript saving)
-python-docx==1.2.0
+# SSL certificate handling
+certifi
 
-# GUI (built into Python, but listed for clarity)
-# tkinter is built-in to Python
+# Advanced audio processing for 5-stage TV noise filtering
+numpy>=1.21.0
 
-# Standard library dependencies (no installation needed):
+# Standard library dependencies (built into Python):
 # - datetime
 # - threading  
 # - asyncio
-# - json
+# - tkinter (GUI - built-in to Python)
 # - os
 # - pathlib
-# - re
-# - uuid
-# - webbrowser
-# - http.server
-# - urllib.parse
-# - shutil
-# - subprocess
-# - sys
+# - ssl
+# - time
