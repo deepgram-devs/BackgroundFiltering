@@ -1,4 +1,4 @@
-# Sierra Voice Filter - Revolutionary TV Noise Filtering
+# Voice Filter - Revolutionary TV Noise Filtering
 # 5-Stage filtering system for speaker diarization in noisy environments
 
 # Core voice processing

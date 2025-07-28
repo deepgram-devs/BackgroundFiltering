@@ -1,4 +1,4 @@
-# 🎯 Sierra Voice Filter - Revolutionary TV Noise Filtering
+# 🎯 Voice Filter - Revolutionary TV Noise Filtering
 
 ## The Problem We Solve
 
@@ -13,7 +13,7 @@
 
 ## Our Solution: 5-Stage TV Noise Filtering
 
-Sierra Voice Filter introduces the **first-of-its-kind 5-stage filtering system** that intelligently separates your voice from background TV noise:
+This Voice Filter introduces the **first-of-its-kind 5-stage filtering system** that intelligently separates your voice from background TV noise using **advanced signal processing** and **speaker diarization** techniques:
 
 🎵 **Stage 1: Frequency Analysis** - Detects TV audio signatures before wasting API calls  
 🎯 **Stage 2: Confidence Scoring** - Uses Deepgram's confidence metrics to identify processed audio  
@@ -36,8 +36,8 @@ Sierra Voice Filter introduces the **first-of-its-kind 5-stage filtering system*
 
 1. **Clone the repository:**
 ```bash
-git clone https://github.com/RahulC-DG/SierraDemo.git
-cd SierraDemo
+git clone https://github.com/RahulC-DG/FilteringDemo.git
+cd FilteringDemo
 ```
 
 2. **Install dependencies:**
@@ -53,12 +53,12 @@ echo "DEEPGRAM_API_KEY=your_actual_deepgram_api_key_here" > .env
 
 4. **Run the application:**
 ```bash
-python sierra_voice_filter.py
+python voice_filter.py
 ```
 
 ### Alternative Setup Script
 ```bash
-python setup_sierra_demo.py
+python setup_demo.py
 ```
 
 ---
@@ -71,7 +71,7 @@ python setup_sierra_demo.py
 4. **Monitor filtering** - Watch the terminal to see which stages are filtering out TV noise
 5. **Voice commands:**
    - `"show statistics"` - Display comprehensive filtering metrics
-   - `"exit sierra"` - Stop the system
+   - `"exit filter"` - Stop the system
 
 ### GUI Controls
 - **🎤 Start/Stop Filter** - Begin/end voice filtering
@@ -82,11 +82,13 @@ python setup_sierra_demo.py
 
 ## 🔬 How the Voice Filtering Works
 
+**Core Technologies:** This solution primarily uses **signal processing** techniques for audio analysis and **speaker diarization** for voice separation, enhanced with content analysis and pattern recognition.
+
 ### Stage 1: Frequency Analysis (Pre-Filter)
-**Applied to raw audio before sending to Deepgram API**
+**Applied to raw audio before sending to Deepgram API using signal processing**
 
 ```python
-# Analyzes audio waveforms for TV signatures
+# Analyzes audio waveforms for TV signatures using digital signal processing
 - Energy detection (filters quiet background noise)
 - Zero-crossing rate analysis (detects steady TV music vs varied speech)
 - FFT frequency analysis (identifies TV-specific frequency ranges)
@@ -155,7 +157,7 @@ tv_show_phrases = [
 - **TV Dialogue**: Scripted with perfect timing and clean speaker separation
 
 ### Stage 5: Voice Locking & Diarization
-**Enhanced speaker diarization with TV-aware locking**
+**Enhanced speaker diarization with TV-aware locking - the core diarization technology**
 
 ```python
 # Smart voice locking system
@@ -206,10 +208,10 @@ Stage 5 (Voice Lock): 156 (tracked separately)
 ### Dependencies
 ```python
 deepgram-sdk==4.1.0    # Voice transcription with speaker diarization
-pyaudio==0.2.14        # Real-time audio capture
+pyaudio==0.2.14        # Real-time audio capture and signal processing
 python-dotenv==1.0.1   # Environment variable management
 certifi                # SSL certificate handling
-numpy>=1.21.0          # Advanced audio processing for frequency analysis
+numpy>=1.21.0          # Signal processing and frequency domain analysis
 ```
 
 ### System Requirements
@@ -220,16 +222,16 @@ numpy>=1.21.0          # Advanced audio processing for frequency analysis
 
 ### Architecture
 ```
-Audio Input → Stage 1 (Frequency) → Deepgram API → Stage 2 (Confidence) 
+Audio Input → Stage 1 (Signal Processing) → Deepgram API → Stage 2 (Confidence) 
            → Stage 3 (Content) → Stage 4 (Speaker Patterns) 
-           → Stage 5 (Voice Lock) → Final Transcription
+           → Stage 5 (Diarization & Voice Lock) → Final Transcription
 ```
 
 ---
 
 ## 🎨 Design Philosophy
 
-### Authentic Sierra AI Branding
+### Professional Interface Design
 - **Colors**: Whitish tan background (#F8F6F1) with forest green text (#1B4D3E)
 - **Layout**: 50/50 split showing both transcription results and filtering activity
 - **Professional**: Clean, modern interface suitable for business demonstrations
@@ -272,7 +274,8 @@ MIN_CONFIDENCE_THRESHOLD=0.4  # Minimum confidence for Stage 2
 - **Speaker pattern analysis** detects TV dialogue characteristics
 
 ### Technical Innovation
-- **Frequency domain analysis** using FFT to identify TV audio signatures
+- **Signal processing techniques** using FFT and frequency domain analysis to identify TV audio signatures
+- **Advanced speaker diarization** for separating multiple speakers and voice locking
 - **Confidence variation detection** leveraging Deepgram's advanced metrics
 - **Semantic content filtering** with 30+ TV-specific phrase patterns
 - **Diarization pattern analysis** distinguishing TV dialogue from conversation
@@ -307,4 +310,4 @@ This project demonstrates advanced voice filtering techniques for educational an
 
 ---
 
-**Sierra Voice Filter** - *Revolutionizing voice assistants for real-world environments* 🎯
+**Voice Filter** - *Revolutionizing voice assistants for real-world environments* 🎯

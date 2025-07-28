@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Sierra Voice Filter - Demo Setup Script
+Voice Filter - Demo Setup Script
 Quick setup for the voice diarization and filtering demo
 """
 
@@ -10,13 +10,13 @@ import subprocess
 from pathlib import Path
 
 def print_header():
-    """Print Sierra branding header"""
+    """Print demo setup header"""
     print("=" * 60)
-    print("🎯 SIERRA VOICE FILTER - Demo Setup")
+    print("🎯 VOICE FILTER - Demo Setup")
     print("=" * 60)
     print("🎤 Speaker Diarization & Voice Filtering Demo")
     print("🔒 Focus on voice locking and filtering technology")
-    print("🎨 Sierra AI branded interface")
+    print("🎨 Deepgram-inspired interface")
     print("=" * 60)
     print()
 
@@ -33,16 +33,16 @@ def install_dependencies():
     """Install required dependencies"""
     print("\n📦 Installing dependencies...")
     
-    requirements_file = Path("sierra_requirements.txt")
+    requirements_file = Path("requirements.txt")
     if not requirements_file.exists():
-        print("❌ sierra_requirements.txt not found!")
-        print("Please ensure sierra_requirements.txt is in the current directory.")
+        print("❌ requirements.txt not found!")
+        print("Please ensure requirements.txt is in the current directory.")
         return False
     
     try:
         # Install dependencies
         result = subprocess.run([
-            sys.executable, "-m", "pip", "install", "-r", "sierra_requirements.txt"
+            sys.executable, "-m", "pip", "install", "-r", "requirements.txt"
         ], capture_output=True, text=True, check=True)
         
         print("✅ Dependencies installed successfully!")
@@ -77,7 +77,7 @@ def check_env_file():
     print("\n📝 Creating .env file...")
     
     # Create .env file
-    env_content = """# Sierra Voice Filter Configuration
+    env_content = """# Voice Filter Configuration
 # Get your API key from: https://console.deepgram.com/
 
 DEEPGRAM_API_KEY=your_deepgram_api_key_here
@@ -138,13 +138,13 @@ def check_demo_file():
     """Check if main demo file exists"""
     print("\n📄 Checking demo files...")
     
-    demo_file = Path("sierra_voice_filter.py")
+    demo_file = Path("voice_filter.py")
     if demo_file.exists():
-        print("✅ Sierra Voice Filter demo file found")
+        print("✅ Voice Filter demo file found")
         return True
     else:
-        print("❌ sierra_voice_filter.py not found!")
-        print("Please ensure sierra_voice_filter.py is in the current directory.")
+        print("❌ voice_filter.py not found!")
+        print("Please ensure voice_filter.py is in the current directory.")
         return False
 
 def print_next_steps(api_key_needed=False):
@@ -160,23 +160,23 @@ def print_next_steps(api_key_needed=False):
         print("   - Copy API key and paste into .env file")
         print()
         print("2. 🚀 Run the demo:")
-        print("   python sierra_voice_filter.py")
+        print("   python voice_filter.py")
     else:
         print("🚀 Ready to run! Start the demo with:")
-        print("   python sierra_voice_filter.py")
+        print("   python voice_filter.py")
     
     print("\n🎤 Demo Features:")
     print("   - Real-time speaker diarization")
     print("   - Voice locking (first speaker)")
     print("   - Live filtering of other voices")
     print("   - Terminal showing filtering activity")
-    print("   - Sierra AI branded interface")
+    print("   - Deepgram-inspired interface")
     
     print("\n🔧 Usage Tips:")
     print("   - Speak clearly for best results")
     print("   - First person to speak gets voice lock")
     print("   - Use 'Reset Speaker Lock' to change speakers")
-    print("   - Say 'exit sierra' to stop demo")
+    print("   - Say 'exit filter' to stop demo")
     
     print("\n" + "=" * 60)
 

@@ -17,23 +17,24 @@ import re
 # Load environment variables from .env file
 load_dotenv()
 
-# Sierra AI Authentic Color Palette (from sierra.ai)
-SIERRA_COLORS = {
-    'primary_green': '#1B4D3E',      # Forest green for text and buttons
-    'secondary_green': '#2D6A4F',    # Lighter forest green for accents
-    'accent_green': '#40916C',       # Bright green for highlights
-    'success_green': '#52B788',      # Success states
-    'background': '#F8F6F1',         # Whitish tan background
-    'card_bg': '#FFFFFF',            # Pure white for cards
-    'secondary_bg': '#F1EFE9',       # Slightly darker tan
-    'text_primary': '#1B4D3E',       # Dark green for primary text
-    'text_secondary': '#6C757D',     # Gray for secondary text
-    'text_muted': '#ADB5BD',         # Light gray for muted text
-    'warning': '#F77F00',            # Orange for warnings
-    'danger': '#D62828',             # Red for errors
-    'border': '#DEE2E6',             # Light gray borders
-    'terminal_bg': '#2D3748',        # Dark background for terminal
-    'terminal_text': '#E2E8F0'       # Light text for terminal
+# Deepgram-inspired Color Palette
+DEEPGRAM_COLORS = {
+    'primary_dark': '#13111C',       # Deep dark background
+    'secondary_dark': '#1C1A26',     # Slightly lighter dark
+    'accent_green': '#00D4AA',       # Deepgram signature green
+    'accent_blue': '#2563EB',        # Deepgram blue accent
+    'success_green': '#10B981',      # Success states
+    'background': '#0F0E16',         # Very dark background
+    'card_bg': '#1A1825',            # Dark card background
+    'secondary_bg': '#252134',       # Darker surface
+    'text_primary': '#FFFFFF',       # White primary text
+    'text_secondary': '#A1A1AA',     # Gray secondary text
+    'text_muted': '#71717A',         # Muted gray text
+    'warning': '#F59E0B',            # Amber warning
+    'danger': '#EF4444',             # Red for errors
+    'border': '#374151',             # Dark borders
+    'terminal_bg': '#0F0E16',        # Very dark terminal
+    'terminal_text': '#E5E7EB'       # Light terminal text
 }
 
 class AdvancedTVNoiseFilter:
@@ -375,7 +376,7 @@ class AdvancedTVNoiseFilter:
         
         return "\n".join(stats)
 
-class SierraVoiceFilter:
+class VoiceFilter:
     def __init__(self, terminal_display, status_display):
         self.terminal_display = terminal_display
         self.status_display = status_display
@@ -398,8 +399,8 @@ class SierraVoiceFilter:
         
         # Initialize Deepgram client with SSL context
         try:
-            print("🔧 Initializing Sierra Voice Filter with Deepgram...")
-            self.log_to_terminal("🔧 Initializing Sierra Voice Filter with Advanced TV Noise Filtering...")
+            print("🔧 Initializing Voice Filter with Deepgram...")
+            self.log_to_terminal("🔧 Initializing Voice Filter with Advanced TV Noise Filtering...")
             
             # Import EmbeddedConfig for proper API key handling
             from embedded_config import EmbeddedConfig
@@ -423,11 +424,11 @@ class SierraVoiceFilter:
                 }
             )
             self.deepgram = DeepgramClient(api_key, config)
-            print("✅ Sierra Voice Filter initialized successfully with SSL context")
-            self.log_to_terminal("✅ Sierra Voice Filter with Advanced TV Filtering initialized successfully")
+            print("✅ Voice Filter initialized successfully with SSL context")
+            self.log_to_terminal("✅ Voice Filter with Advanced TV Filtering initialized successfully")
         except Exception as e:
-            print(f"❌ Error initializing Sierra Voice Filter: {e}")
-            self.log_to_terminal(f"❌ Error initializing Sierra Voice Filter: {e}")
+            print(f"❌ Error initializing Voice Filter: {e}")
+            self.log_to_terminal(f"❌ Error initializing Voice Filter: {e}")
     
     def log_to_terminal(self, message):
         """Log message to terminal display with timestamp"""
@@ -505,12 +506,12 @@ class SierraVoiceFilter:
                 if len(speaker_words[primary_candidate]) >= self.min_words_to_lock:
                     self.primary_speaker_id = primary_candidate
                     self.log_to_terminal(f"🔒 STAGE 5 VOICE LOCK: Locked to Speaker {self.primary_speaker_id}")
-                    self.update_status(f"🔒 Voice Locked to Speaker {self.primary_speaker_id}", SIERRA_COLORS['success_green'])
+                    self.update_status(f"🔒 Voice Locked to Speaker {self.primary_speaker_id}", DEEPGRAM_COLORS['success_green'])
                     
                     # Update speaker lock display
                     try:
                         speaker_lock_label.config(text=f"🔒 Speaker {self.primary_speaker_id} Locked", 
-                                                 fg=SIERRA_COLORS['success_green'])
+                                                 fg=DEEPGRAM_COLORS['success_green'])
                     except:
                         pass
         
@@ -547,10 +548,10 @@ class SierraVoiceFilter:
         self.accepted_count = 0
         
         self.log_to_terminal("🔓 SPEAKER LOCK RESET - will re-identify on next speech")
-        self.update_status("🔓 Ready to lock onto voice", SIERRA_COLORS['warning'])
+        self.update_status("🔓 Ready to lock onto voice", DEEPGRAM_COLORS['warning'])
         
         try:
-            speaker_lock_label.config(text="🔓 No Speaker Lock", fg=SIERRA_COLORS['text_muted'])
+            speaker_lock_label.config(text="🔓 No Speaker Lock", fg=DEEPGRAM_COLORS['text_muted'])
         except:
             pass
     
@@ -584,8 +585,8 @@ class SierraVoiceFilter:
                         print(f"Error updating transcription display: {e}")
                     
                     # Check for exit command
-                    if "exit sierra" in filtered_transcript.lower() or "stop sierra" in filtered_transcript.lower():
-                        self.log_to_terminal("🛑 Exit command detected - stopping Sierra Voice Filter")
+                    if "exit filter" in filtered_transcript.lower() or "stop filter" in filtered_transcript.lower():
+                        self.log_to_terminal("🛑 Exit command detected - stopping Voice Filter")
                         self.stop_filter()
                     
                     # Check for statistics command
@@ -622,7 +623,7 @@ class SierraVoiceFilter:
     async def start_audio_stream(self):
         """Start the audio stream and Deepgram transcription"""
         try:
-            self.log_to_terminal("🎯 Starting Sierra Voice Filter audio stream...")
+            self.log_to_terminal("🎯 Starting Voice Filter audio stream...")
             
             if not self.deepgram:
                 self.log_to_terminal("❌ Deepgram client not initialized")
@@ -668,8 +669,8 @@ class SierraVoiceFilter:
             
             # Define event handlers
             def on_open(self, open, **kwargs):
-                voice_filter.log_to_terminal("🟢 Sierra Voice Filter connection opened!")
-                voice_filter.update_status("🟢 Connected & Listening", SIERRA_COLORS['success_green'])
+                voice_filter.log_to_terminal("🟢 Voice Filter connection opened!")
+                voice_filter.update_status("🟢 Connected & Listening", DEEPGRAM_COLORS['success_green'])
 
             def on_message(self, result, **kwargs):
                 try:
@@ -687,11 +688,11 @@ class SierraVoiceFilter:
 
             def on_error(self, error, **kwargs):
                 voice_filter.log_to_terminal(f"🔴 Deepgram error: {error}")
-                voice_filter.update_status("🔴 Connection Error", SIERRA_COLORS['danger'])
+                voice_filter.update_status("🔴 Connection Error", DEEPGRAM_COLORS['danger'])
 
             def on_close(self, close, **kwargs):
                 voice_filter.log_to_terminal("🔌 Deepgram connection closed")
-                voice_filter.update_status("🔌 Disconnected", SIERRA_COLORS['text_muted'])
+                voice_filter.update_status("🔌 Disconnected", DEEPGRAM_COLORS['text_muted'])
             
             # Register event handlers
             self.dg_connection.on(LiveTranscriptionEvents.Open, on_open)
@@ -709,12 +710,12 @@ class SierraVoiceFilter:
                 self.log_to_terminal("❌ Failed to start Deepgram connection")
                 return
             
-            self.log_to_terminal("✅ Sierra Voice Filter started successfully!")
+            self.log_to_terminal("✅ Voice Filter started successfully!")
             self.log_to_terminal("=" * 50)
-            self.log_to_terminal("🎤 SIERRA VOICE FILTER - ACTIVE")
+            self.log_to_terminal("🎤 VOICE FILTER - ACTIVE")
             self.log_to_terminal("🔍 Listening for speakers...")
             self.log_to_terminal("🔒 Will lock onto first speaker with 3+ words")
-            self.log_to_terminal("🗣️ Say 'exit sierra' or 'stop sierra' to stop")
+            self.log_to_terminal("🗣️ Say 'exit filter' or 'stop filter' to stop")
             self.log_to_terminal("=" * 50)
             
             # Give the connection a moment to fully establish
@@ -771,7 +772,7 @@ class SierraVoiceFilter:
     
     async def cleanup(self):
         """Clean up resources"""
-        self.log_to_terminal("🛑 Stopping Sierra Voice Filter...")
+        self.log_to_terminal("🛑 Stopping Voice Filter...")
         self.is_running = False
         
         if self.dg_connection:
@@ -789,25 +790,25 @@ class SierraVoiceFilter:
             except Exception as e:
                 self.log_to_terminal(f"❌ Error closing audio stream: {e}")
         
-        self.log_to_terminal("✅ Sierra Voice Filter cleanup completed")
-        self.update_status("🔴 Stopped", SIERRA_COLORS['text_muted'])
+        self.log_to_terminal("✅ Voice Filter cleanup completed")
+        self.update_status("🔴 Stopped", DEEPGRAM_COLORS['text_muted'])
     
     def stop_filter(self):
         """Stop the voice filter"""
-        self.log_to_terminal("🛑 Sierra Voice Filter termination requested...")
+        self.log_to_terminal("🛑 Voice Filter termination requested...")
         self.is_running = False
 
 # Global variable to store the filter instance
 current_filter = None
 
 def start_voice_filter():
-    """Start the Sierra voice filter"""
+    """Start the voice filter"""
     global current_filter
-    current_filter = SierraVoiceFilter(terminal_display, status_label)
+    current_filter = VoiceFilter(terminal_display, status_label)
     
     # Update UI
     start_button.config(text="🛑 Stop Filter", command=stop_voice_filter, 
-                       bg=SIERRA_COLORS['danger'], fg="black")
+                       bg=DEEPGRAM_COLORS['danger'], fg="black")
     reset_button.config(state=tk.NORMAL)
     
     def run_async():
@@ -822,7 +823,7 @@ def start_voice_filter():
     thread.start()
 
 def stop_voice_filter():
-    """Stop the Sierra voice filter"""
+    """Stop the voice filter"""
     global current_filter
     if current_filter:
         current_filter.stop_filter()
@@ -830,7 +831,7 @@ def stop_voice_filter():
     
     # Reset UI
     start_button.config(text="🎤 Start Voice Filter", command=start_voice_filter,
-                       bg=SIERRA_COLORS['primary_green'], fg="black")
+                       bg=DEEPGRAM_COLORS['accent_green'], fg="black")
     reset_button.config(state=tk.DISABLED)
 
 def reset_speaker_lock():
@@ -866,82 +867,82 @@ def clear_terminal():
     # Show welcome message again
     show_welcome_message()
 
-# Create main GUI with Authentic Sierra AI styling (whitish tan + forest green)
+# Create main GUI with Deepgram-inspired dark styling
 root = tk.Tk()
-root.title("Sierra Voice Filter - Speaker Diarization Demo")
+root.title("Voice Filter - Advanced Audio Processing")
 root.geometry("1200x800")
-root.configure(bg=SIERRA_COLORS['background'])
+root.configure(bg=DEEPGRAM_COLORS['background'])
 root.resizable(True, True)
 
 # Header Frame
-header_frame = tk.Frame(root, bg=SIERRA_COLORS['card_bg'], height=80, relief=tk.FLAT, bd=1)
+header_frame = tk.Frame(root, bg=DEEPGRAM_COLORS['card_bg'], height=80, relief=tk.FLAT, bd=1)
 header_frame.pack(fill=tk.X, padx=20, pady=(20, 10))
 header_frame.pack_propagate(False)
 
-# Sierra branding
-brand_frame = tk.Frame(header_frame, bg=SIERRA_COLORS['card_bg'])
+# Deepgram branding
+brand_frame = tk.Frame(header_frame, bg=DEEPGRAM_COLORS['card_bg'])
 brand_frame.pack(expand=True, fill=tk.BOTH)
 
-# Sierra logo/title with proper forest green
-sierra_title = tk.Label(brand_frame, text="SIERRA", 
+# Deepgram-inspired title
+deepgram_title = tk.Label(brand_frame, text="DEEPGRAM", 
                        font=("Arial", 28, "bold"), 
-                       bg=SIERRA_COLORS['card_bg'], fg=SIERRA_COLORS['primary_green'])
-sierra_title.pack(pady=(15, 2))
+                       bg=DEEPGRAM_COLORS['card_bg'], fg=DEEPGRAM_COLORS['accent_green'])
+deepgram_title.pack(pady=(15, 2))
 
 subtitle = tk.Label(brand_frame, text="Voice Filter & Speaker Diarization", 
                    font=("Arial", 14), 
-                   bg=SIERRA_COLORS['card_bg'], fg=SIERRA_COLORS['text_secondary'])
+                   bg=DEEPGRAM_COLORS['card_bg'], fg=DEEPGRAM_COLORS['text_secondary'])
 subtitle.pack(pady=(0, 10))
 
 # Status Frame
-status_frame = tk.Frame(root, bg=SIERRA_COLORS['card_bg'], height=70, relief=tk.FLAT, bd=1)
+status_frame = tk.Frame(root, bg=DEEPGRAM_COLORS['card_bg'], height=70, relief=tk.FLAT, bd=1)
 status_frame.pack(fill=tk.X, padx=20, pady=(0, 10))
 status_frame.pack_propagate(False)
 
-status_inner = tk.Frame(status_frame, bg=SIERRA_COLORS['card_bg'])
+status_inner = tk.Frame(status_frame, bg=DEEPGRAM_COLORS['card_bg'])
 status_inner.pack(expand=True, fill=tk.BOTH)
 
 # Status indicator
 status_indicator = tk.Label(status_inner, text="⚫", font=("Arial", 18), 
-                           bg=SIERRA_COLORS['card_bg'], fg=SIERRA_COLORS['text_muted'])
+                           bg=DEEPGRAM_COLORS['card_bg'], fg=DEEPGRAM_COLORS['text_muted'])
 status_indicator.pack(side=tk.LEFT, padx=20, pady=20)
 
 status_label = tk.Label(status_inner, text="🔴 Ready to Start", 
                        font=("Arial", 14, "bold"), 
-                       bg=SIERRA_COLORS['card_bg'], fg=SIERRA_COLORS['text_primary'])
+                       bg=DEEPGRAM_COLORS['card_bg'], fg=DEEPGRAM_COLORS['text_primary'])
 status_label.pack(side=tk.LEFT, pady=20)
 
 # Speaker lock status (right side)
 speaker_lock_label = tk.Label(status_inner, text="🔓 No Speaker Lock", 
                              font=("Arial", 12), 
-                             bg=SIERRA_COLORS['card_bg'], fg=SIERRA_COLORS['text_muted'])
+                             bg=DEEPGRAM_COLORS['card_bg'], fg=DEEPGRAM_COLORS['text_muted'])
 speaker_lock_label.pack(side=tk.RIGHT, padx=20, pady=20)
 
 # Control Panel
-control_frame = tk.Frame(root, bg=SIERRA_COLORS['card_bg'], relief=tk.FLAT, bd=1)
+control_frame = tk.Frame(root, bg=DEEPGRAM_COLORS['card_bg'], relief=tk.FLAT, bd=1)
 control_frame.pack(fill=tk.X, padx=20, pady=(0, 10))
 
-control_inner = tk.Frame(control_frame, bg=SIERRA_COLORS['card_bg'])
+control_inner = tk.Frame(control_frame, bg=DEEPGRAM_COLORS['card_bg'])
 control_inner.pack(fill=tk.X, padx=30, pady=20)
 
-# Main control button with Sierra green
+# Main control button with Deepgram green
 start_button = tk.Button(control_inner, text="🎤 Start Voice Filter", 
                         command=start_voice_filter,
                         font=("Arial", 16, "bold"), 
-                        bg=SIERRA_COLORS['primary_green'], fg="black",
+                        bg=DEEPGRAM_COLORS['accent_green'], fg="black",
                         relief=tk.FLAT, bd=0,
                         padx=40, pady=15,
                         cursor="hand2")
 start_button.pack(pady=(0, 15))
 
 # Secondary controls
-secondary_frame = tk.Frame(control_inner, bg=SIERRA_COLORS['card_bg'])
+secondary_frame = tk.Frame(control_inner, bg=DEEPGRAM_COLORS['card_bg'])
 secondary_frame.pack()
 
 reset_button = tk.Button(secondary_frame, text="🔄 Reset Speaker Lock", 
                         command=reset_speaker_lock,
                         font=("Arial", 12), 
-                        bg=SIERRA_COLORS['secondary_green'], fg="black",
+                        bg=DEEPGRAM_COLORS['accent_blue'], fg="black",
                         relief=tk.FLAT, bd=0,
                         padx=20, pady=10,
                         cursor="hand2",
@@ -951,45 +952,45 @@ reset_button.pack(side=tk.LEFT, padx=10)
 clear_button = tk.Button(secondary_frame, text="🗑️ Clear Displays", 
                         command=clear_terminal,
                         font=("Arial", 12), 
-                        bg=SIERRA_COLORS['secondary_green'], fg="black",
+                        bg=DEEPGRAM_COLORS['accent_blue'], fg="black",
                         relief=tk.FLAT, bd=0,
                         padx=20, pady=10,
                         cursor="hand2")
 clear_button.pack(side=tk.LEFT, padx=10)
 
 # MAIN CONTENT AREA - 50/50 SPLIT
-main_content_frame = tk.Frame(root, bg=SIERRA_COLORS['background'])
+main_content_frame = tk.Frame(root, bg=DEEPGRAM_COLORS['background'])
 main_content_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=(0, 20))
 
 # LEFT SIDE - TRANSCRIPTION (50%)
-transcription_frame = tk.Frame(main_content_frame, bg=SIERRA_COLORS['card_bg'], relief=tk.FLAT, bd=1)
+transcription_frame = tk.Frame(main_content_frame, bg=DEEPGRAM_COLORS['card_bg'], relief=tk.FLAT, bd=1)
 transcription_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 10))
 
 # Transcription header
-trans_header = tk.Frame(transcription_frame, bg=SIERRA_COLORS['card_bg'])
+trans_header = tk.Frame(transcription_frame, bg=DEEPGRAM_COLORS['card_bg'])
 trans_header.pack(fill=tk.X, padx=20, pady=(15, 0))
 
 trans_title = tk.Label(trans_header, text="📝 Live Transcription", 
                       font=("Arial", 14, "bold"), 
-                      bg=SIERRA_COLORS['card_bg'], fg=SIERRA_COLORS['primary_green'])
+                      bg=DEEPGRAM_COLORS['card_bg'], fg=DEEPGRAM_COLORS['accent_green'])
 trans_title.pack(side=tk.LEFT)
 
 trans_subtitle = tk.Label(trans_header, text="Accepted speech from locked speaker", 
                          font=("Arial", 10), 
-                         bg=SIERRA_COLORS['card_bg'], fg=SIERRA_COLORS['text_secondary'])
+                         bg=DEEPGRAM_COLORS['card_bg'], fg=DEEPGRAM_COLORS['text_secondary'])
 trans_subtitle.pack(side=tk.RIGHT)
 
 # Transcription text area
-trans_text_frame = tk.Frame(transcription_frame, bg=SIERRA_COLORS['card_bg'])
+trans_text_frame = tk.Frame(transcription_frame, bg=DEEPGRAM_COLORS['card_bg'])
 trans_text_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=(10, 20))
 
 transcription_display = tk.Text(trans_text_frame, 
                                wrap=tk.WORD, 
                                font=("Arial", 12), 
-                               bg=SIERRA_COLORS['background'], 
-                               fg=SIERRA_COLORS['text_primary'],
-                               insertbackground=SIERRA_COLORS['primary_green'],
-                               selectbackground=SIERRA_COLORS['accent_green'],
+                               bg=DEEPGRAM_COLORS['secondary_bg'], 
+                               fg=DEEPGRAM_COLORS['text_primary'],
+                               insertbackground=DEEPGRAM_COLORS['accent_green'],
+                               selectbackground=DEEPGRAM_COLORS['accent_blue'],
                                relief=tk.FLAT, bd=2,
                                padx=15, pady=15)
 transcription_display.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
@@ -997,41 +998,41 @@ transcription_display.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 # Transcription scrollbar
 trans_scrollbar = tk.Scrollbar(trans_text_frame, orient=tk.VERTICAL, 
                               command=transcription_display.yview,
-                              bg=SIERRA_COLORS['border'], 
-                              troughcolor=SIERRA_COLORS['background'], 
-                              activebackground=SIERRA_COLORS['accent_green'])
+                              bg=DEEPGRAM_COLORS['border'], 
+                              troughcolor=DEEPGRAM_COLORS['secondary_bg'], 
+                              activebackground=DEEPGRAM_COLORS['accent_green'])
 transcription_display.configure(yscrollcommand=trans_scrollbar.set)
 trans_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
 # RIGHT SIDE - TERMINAL (50%)
-terminal_frame = tk.Frame(main_content_frame, bg=SIERRA_COLORS['terminal_bg'], relief=tk.FLAT, bd=1)
+terminal_frame = tk.Frame(main_content_frame, bg=DEEPGRAM_COLORS['terminal_bg'], relief=tk.FLAT, bd=1)
 terminal_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=(10, 0))
 
 # Terminal header
-terminal_header = tk.Frame(terminal_frame, bg=SIERRA_COLORS['terminal_bg'])
+terminal_header = tk.Frame(terminal_frame, bg=DEEPGRAM_COLORS['terminal_bg'])
 terminal_header.pack(fill=tk.X, padx=20, pady=(15, 0))
 
 terminal_title = tk.Label(terminal_header, text="🖥️ Voice Filter Terminal", 
                          font=("Arial", 14, "bold"), 
-                         bg=SIERRA_COLORS['terminal_bg'], fg=SIERRA_COLORS['terminal_text'])
+                         bg=DEEPGRAM_COLORS['terminal_bg'], fg=DEEPGRAM_COLORS['terminal_text'])
 terminal_title.pack(side=tk.LEFT)
 
 terminal_subtitle = tk.Label(terminal_header, text="Real-time filtering activity", 
                             font=("Arial", 10), 
-                            bg=SIERRA_COLORS['terminal_bg'], fg=SIERRA_COLORS['text_muted'])
+                            bg=DEEPGRAM_COLORS['terminal_bg'], fg=DEEPGRAM_COLORS['text_muted'])
 terminal_subtitle.pack(side=tk.RIGHT)
 
 # Terminal text area
-terminal_text_frame = tk.Frame(terminal_frame, bg=SIERRA_COLORS['terminal_bg'])
+terminal_text_frame = tk.Frame(terminal_frame, bg=DEEPGRAM_COLORS['terminal_bg'])
 terminal_text_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=(10, 20))
 
 terminal_display = tk.Text(terminal_text_frame, 
                           wrap=tk.WORD, 
                           font=("Consolas", 10), 
-                          bg=SIERRA_COLORS['terminal_bg'], 
-                          fg=SIERRA_COLORS['terminal_text'],
-                          insertbackground=SIERRA_COLORS['terminal_text'],
-                          selectbackground=SIERRA_COLORS['accent_green'],
+                          bg=DEEPGRAM_COLORS['terminal_bg'], 
+                          fg=DEEPGRAM_COLORS['terminal_text'],
+                          insertbackground=DEEPGRAM_COLORS['terminal_text'],
+                          selectbackground=DEEPGRAM_COLORS['accent_green'],
                           relief=tk.FLAT, bd=0,
                           padx=15, pady=15)
 terminal_display.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
@@ -1039,24 +1040,24 @@ terminal_display.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 # Terminal scrollbar
 terminal_scrollbar = tk.Scrollbar(terminal_text_frame, orient=tk.VERTICAL, 
                                  command=terminal_display.yview,
-                                 bg=SIERRA_COLORS['terminal_bg'], 
-                                 troughcolor=SIERRA_COLORS['terminal_bg'], 
-                                 activebackground=SIERRA_COLORS['accent_green'])
+                                 bg=DEEPGRAM_COLORS['terminal_bg'], 
+                                 troughcolor=DEEPGRAM_COLORS['terminal_bg'], 
+                                 activebackground=DEEPGRAM_COLORS['accent_green'])
 terminal_display.configure(yscrollcommand=terminal_scrollbar.set)
 terminal_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
 # Footer
-footer_frame = tk.Frame(root, bg=SIERRA_COLORS['secondary_bg'], height=50, relief=tk.FLAT, bd=1)
+footer_frame = tk.Frame(root, bg=DEEPGRAM_COLORS['secondary_bg'], height=50, relief=tk.FLAT, bd=1)
 footer_frame.pack(fill=tk.X, padx=20, pady=(10, 20))
 footer_frame.pack_propagate(False)
 
-footer_inner = tk.Frame(footer_frame, bg=SIERRA_COLORS['secondary_bg'])
+footer_inner = tk.Frame(footer_frame, bg=DEEPGRAM_COLORS['secondary_bg'])
 footer_inner.pack(expand=True, fill=tk.BOTH)
 
-# Instructions with Sierra styling - Updated for 5-stage system
-instructions = tk.Label(footer_inner, text="🎯 Advanced TV noise filtering active | 📊 Say 'show statistics' for metrics | 🗣️ Say 'exit sierra' to stop", 
+# Instructions with Deepgram styling - Updated for 5-stage system
+instructions = tk.Label(footer_inner, text="🎯 Advanced TV noise filtering active | 📊 Say 'show statistics' for metrics | 🗣️ Say 'exit filter' to stop", 
                        font=("Arial", 11), 
-                       bg=SIERRA_COLORS['secondary_bg'], fg=SIERRA_COLORS['text_primary'])
+                       bg=DEEPGRAM_COLORS['secondary_bg'], fg=DEEPGRAM_COLORS['text_primary'])
 instructions.pack(pady=15)
 
 # Add welcome message
@@ -1064,7 +1065,7 @@ def show_welcome_message():
     """Show welcome message in both displays"""
     # Terminal welcome - Updated for 5-stage system
     terminal_display.insert(tk.END, "=" * 55 + "\n")
-    terminal_display.insert(tk.END, "🎯 SIERRA 5-STAGE TV NOISE FILTER\n")
+    terminal_display.insert(tk.END, "🎯 DEEPGRAM 5-STAGE TV NOISE FILTER\n")
     terminal_display.insert(tk.END, "=" * 55 + "\n")
     terminal_display.insert(tk.END, "🎵 Stage 1: Frequency Analysis (Pre-filter)\n")
     terminal_display.insert(tk.END, "🎯 Stage 2: Deepgram Confidence Scoring\n")
@@ -1074,14 +1075,14 @@ def show_welcome_message():
     terminal_display.insert(tk.END, "=" * 55 + "\n")
     terminal_display.insert(tk.END, "🚫 Filters: TV music, commercials, dialogue\n")
     terminal_display.insert(tk.END, "📊 Say 'show statistics' for live metrics\n")
-    terminal_display.insert(tk.END, "🗣️ Say 'exit sierra' to stop\n")
+    terminal_display.insert(tk.END, "🗣️ Say 'exit filter' to stop\n")
     terminal_display.insert(tk.END, "=" * 55 + "\n\n")
     terminal_display.insert(tk.END, "Ready for revolutionary TV noise filtering...\n\n")
     terminal_display.see(tk.END)
     
     # Transcription welcome - Updated messaging
     transcription_display.insert(tk.END, "=" * 45 + "\n")
-    transcription_display.insert(tk.END, "📝 SIERRA FILTERED TRANSCRIPTION\n")
+    transcription_display.insert(tk.END, "📝 DEEPGRAM FILTERED TRANSCRIPTION\n")
     transcription_display.insert(tk.END, "=" * 45 + "\n")
     transcription_display.insert(tk.END, "This panel shows ONLY speech that passes all 5 filtering stages.\n\n")
     transcription_display.insert(tk.END, "🎯 Revolutionary TV noise filtering:\n")
@@ -1098,27 +1099,27 @@ root.after(100, show_welcome_message)
 
 # Button hover effects
 def on_enter(event):
-    """Button hover effect with Sierra colors"""
+    """Button hover effect with Deepgram colors"""
     if event.widget.cget('state') != 'disabled':
         current_bg = event.widget.cget('bg')
-        if current_bg == SIERRA_COLORS['primary_green']:
-            event.widget.config(bg=SIERRA_COLORS['accent_green'])
-        elif current_bg == SIERRA_COLORS['secondary_green']:
-            event.widget.config(bg=SIERRA_COLORS['accent_green'])
-        elif current_bg == SIERRA_COLORS['danger']:
-            event.widget.config(bg='#E04444')
+        if current_bg == DEEPGRAM_COLORS['accent_green']:
+            event.widget.config(bg='#00E8BC')  # Lighter green
+        elif current_bg == DEEPGRAM_COLORS['accent_blue']:
+            event.widget.config(bg='#3B82F6')  # Lighter blue
+        elif current_bg == DEEPGRAM_COLORS['danger']:
+            event.widget.config(bg='#F87171')  # Lighter red
 
 def on_leave(event):
-    """Button hover effect with Sierra colors"""
+    """Button hover effect with Deepgram colors"""
     if event.widget.cget('state') != 'disabled':
         # Restore original color based on button
         if event.widget == start_button:
             if "Stop" in start_button.cget('text'):
-                event.widget.config(bg=SIERRA_COLORS['danger'])
+                event.widget.config(bg=DEEPGRAM_COLORS['danger'])
             else:
-                event.widget.config(bg=SIERRA_COLORS['primary_green'])
+                event.widget.config(bg=DEEPGRAM_COLORS['accent_green'])
         else:
-            event.widget.config(bg=SIERRA_COLORS['secondary_green'])
+            event.widget.config(bg=DEEPGRAM_COLORS['accent_blue'])
 
 # Bind hover effects
 for button in [start_button, reset_button, clear_button]:
