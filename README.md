@@ -1,5 +1,11 @@
 # 🎯 Voice Filter - Revolutionary TV Noise Filtering
 
+## 📹 Helpful video demonstration
+
+[![Deepgram Voice Filter Demo](loom.png)](https://www.loom.com/share/bfb33420aa85493baf61a1483c98f8c2?sid=9a22dd1e-3828-445d-9634-df148ea689d8)
+
+*Click the image above to watch a comprehensive demonstration of the Voice Filter in action*
+
 ## The Problem We Solve
 
 **Voice assistants fail in real-world environments.** While they work perfectly in quiet labs, they become unusable when there's background TV noise, commercials, news broadcasts, or multiple people talking. Traditional voice assistants can't distinguish between:
